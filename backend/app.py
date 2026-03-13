@@ -5,7 +5,7 @@ from config import settings
 from routes import upload
 from routes import potholes
 from routes import stats
-
+from routes import complaints
 
 app = FastAPI(
 
@@ -39,6 +39,14 @@ app.include_router(
 app.include_router(
 
     stats.router,
+
+    prefix="/api"
+
+)
+
+app.include_router(
+
+    complaints.router,
 
     prefix="/api"
 
