@@ -9,30 +9,30 @@ bedrock = boto3.client(
     region_name=settings.AWS_REGION
 )
 
-def generate_complaint(latitude: float, longitude: float, severity: str, image_url: str) -> str:
-    prompt = f"""Human: Generate a formal BBMP road complaint letter for the following pothole:
+def generate_complaint(latitude: str, longitude: str, severity: str, image_url: str) -> str:
+    prompt = f"""Generate a formal BBMP road complaint letter for the following pothole:
     Location coordinates: {latitude}, {longitude}
     Severity level: {severity}
-    Evidence: {image_url}
+    Evidence photo: {image_url}
     
-    Write a short professional 4-5 line complaint requesting immediate repair.
-    
-Assistant:"""
+    Write a short professional 4-5 line complaint requesting immediate repair."""
 
     body = json.dumps({
-        "prompt": prompt,
-        "max_tokens_to_sample": 300,
-        "temperature": 0.5
+        "inputText": prompt,
+        "textGenerationConfig": {
+            "maxTokenCount": 300,
+            "temperature": 0.5
+        }
     })
 
     try:
         response = bedrock.invoke_model(
-            modelId="anthropic.claude-v2",
+            modelId="amazon.titan-text-express-v1",
             body=body,
             contentType="application/json",
             accept="application/json"
         )
         result = json.loads(response["body"].read())
-        return result["completion"]
+        return result["results"][0]["outputText"]
     except Exception as e:
         raise Exception(f"Bedrock failed: {str(e)}")
